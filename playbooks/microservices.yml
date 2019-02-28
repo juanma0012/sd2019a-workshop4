@@ -1,0 +1,32 @@
+---
+- hosts: webserverA, webserverB
+  sudo: yes
+  tasks:
+    - name: Add EPEL YUM repository
+      yum_repository:
+        name: epel
+        description: EPEL YUM repo
+        baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+    - name: install wget, unzip
+      yum:
+        name: wget unzip
+    - name: Install pip packages
+      yum: 
+        name: libselinux-python, bc, python-pip 
+        state: present
+        disable_gpg_check: true
+    - name: Download Consul x64
+      get_url: url=https://releases.hashicorp.com/consul/1.0.0/consul_1.0.0_linux_amd64.zip dest=/tmp/consul.zip
+    - name: unzip consul
+      shell: unzip /tmp/consul.zip -d /tmp
+    - name: move consul to /usr/bin
+      shell: mv /tmp/consul /usr/bin
+    - name: create folder etc/consul.d
+      shell: mkdir /etc/consul.d
+    - name: create folder etc/consul/data
+      shell: mkdir -p /etc/consul/data
+    - name: Add the user 'consul'
+      user:
+        name: consul
+        state: present
+        password: 123456
