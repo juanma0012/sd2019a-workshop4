@@ -1,0 +1,8 @@
+[load_balancer]
+192.168.56.101 ansible_ssh_user=vagrant
+[discovery_service]
+192.168.56.102 ansible_ssh_user=vagrant
+[microservice_a]
+192.168.56.103 ansible_ssh_user=vagrant
+[microservice_b]
+192.168.56.104 ansible_ssh_user=vagrant

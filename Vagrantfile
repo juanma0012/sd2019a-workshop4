@@ -11,15 +11,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     lb.vm.provider :virtualbox do |vb|
       vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "load_balancer" ]
     end
-    lb.vm.provision "shell", inline: <<-SHELL
-      yum install -y wget
-      yum install -y haproxy
-      yum install -y unzip
-      wget https://releases.hashicorp.com/consul-template/0.19.4/consul-template_0.19.4_linux_amd64.zip -P /tmp
-      unzip /tmp/consul-template_0.19.4_linux_amd64.zip -d /tmp
-      mv /tmp/consul-template /usr/bin
-      mkdir /etc/consul-template
-    SHELL
+    lb.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "/home/vagrant/.ssh/public_key"
+    lb.vm.provision "shell", inline: "cat /home/vagrant/.ssh/public_key >> /home/vagrant/.ssh/authorized_keys"
+    lb.vm.provision "shell", inline: "rm /home/vagrant/.ssh/public_key"
+    
   end
   config.vm.define :discovery_service do |ds|
     ds.vm.box = "centos_7"
@@ -27,15 +22,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     ds.vm.provider :virtualbox do |vb|
       vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "consul_server" ]
     end
-    ds.vm.provision "shell", inline: <<-SHELL
-      yum install -y wget
-      yum install -y unzip
-      wget https://releases.hashicorp.com/consul/1.0.0/consul_1.0.0_linux_amd64.zip -P /tmp
-      unzip /tmp/consul_1.0.0_linux_amd64.zip -d /tmp
-      mv /tmp/consul /usr/bin
-      mkdir /etc/consul.d
-      mkdir -p /etc/consul/data
-    SHELL
+    ds.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "/home/vagrant/.ssh/public_key"
+    ds.vm.provision "shell", inline: "cat /home/vagrant/.ssh/public_key >> /home/vagrant/.ssh/authorized_keys"
+    ds.vm.provision "shell", inline: "rm /home/vagrant/.ssh/public_key"
   end
   config.vm.define :microservice_a do |ma|
     ma.vm.box = "centos_7"
@@ -43,17 +32,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     ma.vm.provider :virtualbox do |vb|
       vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "microservice_a" ]
     end
-    ma.vm.provision "shell", inline: <<-SHELL
-      yum install -y wget
-      yum install -y unzip
-      wget https://bootstrap.pypa.io/get-pip.py -P /tmp
-      python /tmp/get-pip.py
-      wget https://releases.hashicorp.com/consul/1.0.0/consul_1.0.0_linux_amd64.zip -P /tmp
-      unzip /tmp/consul_1.0.0_linux_amd64.zip -d /tmp
-      mv /tmp/consul /usr/bin
-      mkdir /etc/consul.d
-      mkdir -p /etc/consul/data
-    SHELL
+    ma.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "/home/vagrant/.ssh/public_key"
+    ma.vm.provision "shell", inline: "cat /home/vagrant/.ssh/public_key >> /home/vagrant/.ssh/authorized_keys"
+    ma.vm.provision "shell", inline: "rm /home/vagrant/.ssh/public_key"
   end
   config.vm.define :microservice_b do |mb|
     mb.vm.box = "centos_7"
@@ -61,16 +42,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     mb.vm.provider :virtualbox do |vb|
       vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "microservice_b" ]
     end
-    mb.vm.provision "shell", inline: <<-SHELL
-      yum install -y wget
-      yum install -y unzip
-      wget https://bootstrap.pypa.io/get-pip.py -P /tmp
-      python /tmp/get-pip.py
-      wget https://releases.hashicorp.com/consul/1.0.0/consul_1.0.0_linux_amd64.zip -P /tmp
-      unzip /tmp/consul_1.0.0_linux_amd64.zip -d /tmp
-      mv /tmp/consul /usr/bin
-      mkdir /etc/consul.d
-      mkdir -p /etc/consul/data
-    SHELL
+    mb.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "/home/vagrant/.ssh/public_key"
+    mb.vm.provision "shell", inline: "cat /home/vagrant/.ssh/public_key >> /home/vagrant/.ssh/authorized_keys"
+    mb.vm.provision "shell", inline: "rm /home/vagrant/.ssh/public_key"
   end
 end

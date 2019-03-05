@@ -1,0 +1,8 @@
+[Unit]
+Description=Nodejs server running
+[Service]
+ExecStart=python /home/microservices/microservice_a.py
+WorkingDirectory=/var/www
+Restart=always
+[Install]
+WantedBy=multi-user.target

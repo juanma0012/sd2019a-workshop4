@@ -1,0 +1,8 @@
+[Unit]
+Description=Nodejs server running
+[Service]
+ExecStart=consul agent -data-dir=/etc/consul/data -node=agent-one -bind=192.168.56.103 -enable-script-checks=true -config-dir=/etc/consul.d
+WorkingDirectory=/var/www
+Restart=always
+[Install]
+WantedBy=multi-user.target
