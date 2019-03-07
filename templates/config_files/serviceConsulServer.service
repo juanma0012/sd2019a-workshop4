@@ -1,6 +1,7 @@
 [Unit]
 Description=Server of Consul service running
 [Service]
+User=consul
 ExecStart=/usr/bin/consul agent -server -bootstrap-expect=1 -data-dir=/etc/consul/data -node=agent-server -bind=192.168.56.102 -enable-script-checks=true -config-dir=/etc/consul.d -client 0.0.0.0
 Restart=always
 [Install]

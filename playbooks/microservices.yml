@@ -1,5 +1,5 @@
 ---
-- hosts: microservice_a, microservice_b
+- hosts: microservice_a
   sudo: yes
   tasks:
     - name: update openssl
@@ -13,12 +13,17 @@
         baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
     - name: install wget, unzip
       yum:
-        name: wget unzip
+        name: wget, unzip
     - name: Install pip packages
       yum: 
         name: libselinux-python, bc, python-pip 
         state: present
         disable_gpg_check: true
+    - name: Add the user 'consul'
+      user:
+        name: consul
+        state: present
+        password: 123456
     - name: Download Consul x64
       get_url: url=https://releases.hashicorp.com/consul/1.0.0/consul_1.0.0_linux_amd64.zip dest=/tmp/consul.zip
     - name: unzip consul
@@ -26,17 +31,27 @@
     - name: move consul to /usr/bin
       shell: mv /tmp/consul /usr/bin
     - name: create folder etc/consul.d
-      shell: mkdir /etc/consul.d
+      file:
+        path: /etc/consul.d
+        state: directory
+        mode: 0755
+        owner: consul
+        group: consul
     - name: create folder etc/consul/data
-      shell: mkdir -p /etc/consul/data
-    - name: Add the user 'consul'
-      user:
-        name: consul
-        state: present
-        password: 123456
+      file:
+        path: /etc/consul/data
+        state: directory
+        mode: 0755
+        owner: consul
+        group: consul
     - name: Enabled 8301 port
       firewalld:
         port: 8301/tcp
+        permanent: yes
+        state: enabled
+    - name: Enabled 8080 port
+      firewalld:
+        port: 8080/tcp
         permanent: yes
         state: enabled
     - name: Restart the firewalld service to load in the firewall changes
@@ -48,47 +63,44 @@
         name: microservices
         state: present
         password: 123456
-    - name: Create app.css file
-      template: src=../templates/microservices_a.py
-        dest=/home/microservices/microservices_a.py
-        backup=yes
+    - name: Copy microservice_a.py file
+      template: 
+        src: ../templates/microservice_a.py
+        dest: /home/microservices/microservice_a.py
+        backup: yes
         owner: microservices
         group: microservices
     - name: Copy server service
-      template: src=../templates/config_files/serverApp.service
-        dest=/etc/systemd/system/serverApp.service
-    - name: restart service cron on centos, in all cases, also issue daemon-reload to pick up config changes
-      systemd:
-        state: restarted
-        daemon_reload: yes
-        name: serverApp
+      template: 
+        src: ../templates/config_files/serverApp.service
+        dest: /etc/systemd/system/serverApp.service
+        owner: microservices
+        group: microservices
+        mode: 0755
     - name: Create a config file with a microservice with a healthcheck
       service:
         name: serverApp
         state: started
         enabled: yes
-      become: yes
-      become_user: microservices
     - name: Copy microservice-a.json
-      template: src=../templates/microservice-a.json
-        dest=/etc/consul.d/microservice-a.json
+      template: 
+        src: ../templates/microservice-a.json
+        dest: /etc/consul.d/microservice-a.json
+        owner: microservices
+        group: microservices
+        mode: 0755
     - name: Copy server service
-      template: src=../templates/config_files/serviceConsulAgent.service
-        dest=/etc/systemd/system/serviceConsulAgent.service
+      template: 
+        src: ../templates/config_files/serviceConsulAgent.service
+        dest: /etc/systemd/system/serviceConsulAgent.service
         owner: consul
         group: consul
-    - name: restart service cron on centos, in all cases, also issue daemon-reload to pick up config changes
-      systemd:
-        state: restarted
-        daemon_reload: yes
-        name: serviceConsulAgent
+        mode: 0755
     - name: Create a config file with a microservice with a healthcheck
       service:
         name: serviceConsulAgent
         state: started
         enabled: yes
-      become: yes
-      become_user: consul
     - name: join the client to the discovery service
       shell: consul join 192.168.56.102
       become: yes

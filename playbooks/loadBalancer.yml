@@ -1,5 +1,5 @@
 ---
-- hosts: discovery_service
+- hosts: load_balancer
   sudo: yes
   tasks:
     - name: update openssl
@@ -19,59 +19,49 @@
         name: libselinux-python, bc, python-pip 
         state: present
         disable_gpg_check: true
-    - name: Add the user 'consul'
-      user:
-        name: consul
-        state: present
-        password: 123456
     - name: Download Consul x64
       get_url: url=https://releases.hashicorp.com/consul/1.0.0/consul_1.0.0_linux_amd64.zip dest=/tmp/consul.zip
     - name: unzip consul
       shell: unzip /tmp/consul.zip -d /tmp
     - name: move consul to /usr/bin
       shell: mv /tmp/consul /usr/bin
+    - name: Add the user 'consul'
+      user:
+        name: consul
+        state: present
+        password: 123456
     - name: create folder etc/consul.d
       file:
-        path: /etc/consul.d
+        path: /etc/consul-template
         state: directory
-        mode: 0755
         owner: consul
         group: consul
-    - name: create folder etc/consul/data
-      file:
-        path: /etc/consul/data
-        state: directory
         mode: 0755
-        owner: consul
-        group: consul
-    - name: Enabled 8301 port
+    - name: Enabled 5000 port
       firewalld:
-        port: 8301/tcp
-        permanent: yes
-        state: enabled
-    - name: Enabled 8300 port
-      firewalld:
-        port: 8300/tcp
-        permanent: yes
-        state: enabled
-    - name: Enabled 8500 port
-      firewalld:
-        port: 8500/tcp
+        port: 5000/tcp
         permanent: yes
         state: enabled
     - name: Restart the firewalld service to load in the firewall changes
       service: 
         name: firewalld 
         state: restarted
+    - name: Copy haproxy.tpl file
+      template:
+        src: ../templates/config_files/haproxy.tpl
+        dest: /etc/consul-template/haproxy.tpl
+        owner: consul
+        group: consul
+        mode: 0755
     - name: Copy server service
       template:
-        src: ../templates/config_files/serviceConsulServer.service
-        dest: /etc/systemd/system/serviceConsulServer.service
+        src: ../templates/config_files/serviceLoadBalancer.service
+        dest: /etc/systemd/system/serviceLoadBalancer.service
         owner: consul
         group: consul
         mode: 0755
     - name: Start the service consul server
       service:
-        name: serviceConsulServer
+        name: serviceLoadBalancer
         state: started
         enabled: yes

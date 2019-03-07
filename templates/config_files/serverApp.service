@@ -1,8 +1,8 @@
 [Unit]
 Description=Nodejs server running
 [Service]
-ExecStart=python /home/microservices/microservice_a.py
-WorkingDirectory=/var/www
+User=microservices
+ExecStart=/usr/bin/python /home/microservices/microservice_a.py
 Restart=always
 [Install]
 WantedBy=multi-user.target
