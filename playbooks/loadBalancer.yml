@@ -19,12 +19,12 @@
         name: libselinux-python, bc, python-pip 
         state: present
         disable_gpg_check: true
-    - name: Download Consul x64
-      get_url: url=https://releases.hashicorp.com/consul/1.0.0/consul_1.0.0_linux_amd64.zip dest=/tmp/consul.zip
-    - name: unzip consul
-      shell: unzip /tmp/consul.zip -d /tmp
+    - name: Download Consul template x64
+      get_url: url=https://releases.hashicorp.com/consul-template/0.19.4/consul-template_0.19.4_linux_amd64.zip dest=/tmp/consul-template.zip
+    - name: unzip consul-template
+      shell: unzip /tmp/consul-template.zip -d /tmp
     - name: move consul to /usr/bin
-      shell: mv /tmp/consul /usr/bin
+      shell: mv /tmp/consul-template /usr/bin
     - name: Add the user 'consul'
       user:
         name: consul
@@ -46,8 +46,15 @@
       service: 
         name: firewalld 
         state: restarted
+    - name: create folder etc/haproxy
+      file:
+        path: /etc/haproxy
+        state: directory
+        owner: consul
+        group: consul
+        mode: 0755
     - name: Copy haproxy.tpl file
-      template:
+      copy:
         src: ../templates/config_files/haproxy.tpl
         dest: /etc/consul-template/haproxy.tpl
         owner: consul

@@ -2,7 +2,7 @@
 Description= consul-template checking the load balancer members
 [Service]
 User=consul
-ExecStart=consul-template -consul-addr "192.168.56.102:8500" -template "/etc/consul-template/haproxy.tpl:/etc/haproxy/haproxy.cfg:systemctl restart haproxy"
+ExecStart=/usr/bin/consul-template -consul-addr "192.168.56.102:8500" -template "/etc/consul-template/haproxy.tpl:/etc/haproxy/haproxy.cfg:systemctl restart haproxy"
 Restart=always
 [Install]
 WantedBy=multi-user.target
