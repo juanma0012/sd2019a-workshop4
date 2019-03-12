@@ -19,6 +19,9 @@
         name: libselinux-python, bc, python-pip 
         state: present
         disable_gpg_check: true
+    - name: Install python flask
+      pip:
+        name: flask
     - name: Add the user 'consul'
       user:
         name: consul
